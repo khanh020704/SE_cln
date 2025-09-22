@@ -28,20 +28,18 @@ News là một dự án **thu thập và hiển thị tin tức từ nhiều ngu
 
 Hệ thống có thể:
 
-- Chạy nhanh ở **dev mode** (không cần worker, crawl đồng bộ).
-- Chạy ổn định ở **prod mode** (Celery worker + Redis, crawl định kỳ).
+Hỗ trợ chạy ở cả **môi trường phát triển** (SQLite, sync crawl) và **production** (PostgreSQL + Redis + Celery).
 
 ---
 
 ## 2. Kiến trúc & Công nghệ
 
-- **Django**: ORM, template engine, admin, management commands
-- **Database**: PostgreSQL (production) / SQLite (dev)
-- **Celery + Redis**: xử lý tác vụ nền (crawl RSS, fetch HTML, làm sạch dữ liệu)
-- **Requests + Feedparser + Trafilatura**: tải RSS, parse/trích xuất nội dung HTML
-- **BeautifulSoup + Bleach**: sanitize & định dạng HTML
-- **Whitenoise + Gunicorn**: phục vụ static file & production server
-- **Django Template Engine**: giao diện thuần HTML/CSS (có thể kết hợp HTMX)
+- **Django**: ORM, Template Engine, Admin, Management Commands  
+- **Database**: PostgreSQL (production) / SQLite (dev)  
+- **Celery + Redis**: xử lý tác vụ nền (crawl RSS, fetch HTML, làm sạch dữ liệu)  
+- **Requests + Feedparser + Trafilatura**: tải RSS, parse/trích xuất nội dung HTML  
+- **BeautifulSoup + Bleach**: sanitize & định dạng HTML  
+- **Whitenoise + Gunicorn**: phục vụ static file & production server  
 
 ---
 
@@ -131,8 +129,8 @@ vnnews/                       # Project config
 
 ```bash
 # Clone
-git clone https://github.com/khanh020704/news_crawler.git
-cd news_crawler
+git clone https://github.com/khanh020704/SE_.git
+cd SE_
 
 # Tạo venv
 # Linux/macOS:
