@@ -1,0 +1,43 @@
+{% extends "base.html" %} {% block title %}News — Trang chủ{% endblock %} {% block content %} {% if q %}
+<p class="muted">Kết quả cho: “{{ q }}” — {{ page_obj.paginator.count }} bài</p>
+<div class="hr"></div>
+{% endif %} {% if object_list %}
+<section class="grid cards">
+    {% for a in object_list %}
+    <article class="card">
+        <a class="cover" href="{% url 'article_detail' slug=a.slug %}">
+            {% if a.main_image_url %}
+              <img src="{{ a.main_image_url }}" alt="" referrerpolicy="no-referrer"
+     style="width:100%;height:220px;object-fit:cover;border-radius:12px;background:#0b0f15"
+     onerror="this.style.display='none'">
+            {% else %}
+              <img src="https://picsum.photos/800/400?random={{ a.id }}" alt="" referrerpolicy="no-referrer"
+     style="width:100%;height:220px;object-fit:cover;border-radius:12px;background:#0b0f15"
+     onerror="this.style.display='none'">
+            {% endif %}
+          </a>
+        <div class="body">
+            <a class="title" href="{% url 'article_detail' slug=a.slug %}">{{ a.title }}</a> {% if a.excerpt %}
+            <p class="excerpt">{{ a.excerpt }}</p>{% endif %}
+            <p class="meta">
+                {% if a.published_at %}{{ a.published_at|date:"H:i d/m/Y" }}{% endif %} {% with cats=a.categories.all %} {% if cats|length %} • {% for c in cats %}
+                <a class="muted" href="{% url 'category' slug=c.slug %}">{{ c.name }}</a>{% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endwith %}
+            </p>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+
+{% if is_paginated %}
+<div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+    {% if page_obj.has_previous %}
+    <a class="btn" href="?q={{ q }}&page={{ page_obj.previous_page_number }}">← Trước</a> {% endif %}
+    <span class="muted" style="align-self:center">Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span> {% if page_obj.has_next %}
+    <a class="btn" href="?q={{ q }}&page={{ page_obj.next_page_number }}">Sau →</a> {% endif %}
+</div>
+{% endif %} {% else %}
+<div class="card" style="padding:18px">
+    <b>Không có bài viết.</b>
+    <p class="muted">Hãy chạy <code>python manage.py crawl_now --limit 30</code> để nạp dữ liệu.</p>
+</div>
+{% endif %} {% endblock %}

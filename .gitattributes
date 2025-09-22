@@ -1,0 +1,9 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Treat migrations as text
+*.py linguist-language=Python
+
+# Ignore large binary files for linguist stats
+*.sqlite3 linguist-vendored
+*.db linguist-vendored

@@ -1,0 +1,37 @@
+{% extends "base.html" %} {% block title %}{{ category.name }} - News{% endblock %} {% block content %}
+<h2 style="margin:6px 0 10px 0">{{ category.name }}</h2>
+
+{% if object_list %}
+<section class="grid cards">
+    {% for a in object_list %}
+    <article class="card">
+        <a class="cover" href="{% url 'article_detail' slug=a.slug %}">
+            {% if a.main_image_url %}
+              <img src="{{ a.main_image_url }}" alt="">
+            {% else %}
+              <img src="https://picsum.photos/800/400?random={{ a.id }}" alt="">
+            {% endif %}
+          </a>
+        <div class="body">
+            <a class="title" href="{% url 'article_detail' slug=a.slug %}">{{ a.title }}</a> {% if a.excerpt %}
+            <p class="excerpt">{{ a.excerpt }}</p>{% endif %}
+            <p class="meta">
+                {% if a.published_at %}{{ a.published_at|date:"H:i d/m/Y" }}{% endif %}
+            </p>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+
+{% if is_paginated %}
+<div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+    {% if page_obj.has_previous %}
+    <a class="btn" href="?page={{ page_obj.previous_page_number }}">← Trước</a> {% endif %}
+    <span class="muted" style="align-self:center">Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span> {% if page_obj.has_next %}
+    <a class="btn" href="?page={{ page_obj.next_page_number }}">Sau →</a> {% endif %}
+</div>
+{% endif %} {% else %}
+<div class="card" style="padding:18px">
+    <b>Danh mục chưa có bài.</b>
+</div>
+{% endif %} {% endblock %}

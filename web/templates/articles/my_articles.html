@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block title %}Bài của tôi{% endblock %} {% block content %}
+<section class="card" style="padding:16px">
+    <h2 style="margin:0 0 12px">Bài đã đăng</h2>
+
+    {% if articles %}
+    <div class="grid cards">
+        {% for a in articles %}
+        <article class="card">
+            <a class="cover" href="{% if a.slug %}{% url 'article_detail' a.slug %}{% else %}#{% endif %}">
+            {% if a.main_image_url %}
+              <img src="{{ a.main_image_url }}" alt="{{ a.title }}" loading="lazy">
+            {% else %}
+              <img src="https://picsum.photos/800/400?random={{ a.id }}" alt="{{ a.title }}" loading="lazy">
+            {% endif %}
+          </a>
+            <div class="body">
+                {% if a.slug %}
+                <a class="title" href="{% url 'article_detail' a.slug %}">{{ a.title }}</a> {% else %}
+                <div class="title">{{ a.title }}</div>
+                {% endif %} {% if a.published_at %}
+                <div class="meta">{{ a.published_at|date:"H:i d/m/Y" }}</div>
+                {% endif %}
+
+                <div class="nav" style="margin-top:8px">
+                    <a class="btn" href="{% url 'submit_article_edit' a.pk %}">Sửa</a>
+                    <a class="btn" href="{% url 'submit_article_delete' a.pk %}">Xoá</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="muted">Bạn chưa có bài nào.</p>
+    {% endif %}
+</section>
+{% endblock %}

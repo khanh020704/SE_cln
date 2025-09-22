@@ -1,0 +1,120 @@
+{% extends "base.html" %} {% block title %}{% if edit_mode %}Sửa bài{% else %}Đăng bài{% endif %}{% endblock %} {% block content %}
+<section class="card" style="padding:18px">
+    <h2 style="margin:0 0 8px">{% if edit_mode %}Sửa bài{% else %}Đăng bài{% endif %}</h2>
+    <p class="muted" style="margin:0 0 14px">
+        Điền tiêu đề, tóm tắt, <strong>ảnh tiêu đề</strong> và nội dung. Có thể chèn ảnh trong nội dung bằng thẻ <code>&lt;img src="https://...jpg"&gt;</code>. Nếu bỏ trống Ảnh tiêu đề, hệ thống sẽ tự dùng <em>hình đầu tiên</em> tìm thấy trong nội dung.
+    </p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <label class="lbl">Tiêu đề</label> {{ form.title }}
+
+        <label class="lbl">Tóm tắt</label> {{ form.excerpt }}
+
+        <div class="grid2">
+            <div>
+                <label class="lbl">Nội dung</label> {{ form.content_html }}
+            </div>
+            <div>
+                <label class="lbl">Ảnh tiêu đề (URL)</label> {{ form.main_image_url }}
+                <small class="muted">Dùng link ảnh trực tiếp (.jpg/.png…). Nếu để trống, hệ thống sẽ tự lấy ảnh đầu tiên trong nội dung.</small>
+                <div id="imgPreviewBox" class="imgbox">
+                    <img id="imgPreview" alt="Xem trước" style="display:none;max-width:100%;border-radius:12px">
+                    <div id="imgPlaceholder" class="muted">Chưa có ảnh</div>
+                </div>
+
+                <label class="lbl" style="margin-top:10px">Chuyên mục</label> {{ form.categories }}
+
+                <label class="lbl" style="margin-top:10px">
+          <input type="checkbox" name="{{ form.is_visible.name }}" {% if form.is_visible.value %}checked{% endif %}>
+          Hiển thị
+        </label>
+            </div>
+        </div>
+
+        {% if form.errors %}
+        <div class="errbox">{{ form.errors }}</div>
+        {% endif %}
+
+        <div class="actions">
+            <button class="btn primary">{% if edit_mode %}Lưu thay đổi{% else %}Đăng bài{% endif %}</button>
+            <a class="btn" href="{% url 'my_articles' %}">Quản lý bài đã đăng</a>
+        </div>
+    </form>
+</section>
+
+<style>
+    .lbl {
+        display: block;
+        margin: 10px 0 6px
+    }
+    
+    .grid2 {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr
+    }
+    
+    @media(min-width:960px) {
+        .grid2 {
+            grid-template-columns: 2fr 1fr
+        }
+    }
+    
+    .imgbox {
+        margin-top: 8px;
+        padding: 10px;
+        border: 1px dashed var(--ring);
+        border-radius: 12px;
+        text-align: center
+    }
+    
+    .errbox {
+        margin-top: 12px;
+        color: #fca5a5
+    }
+    
+    .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px
+    }
+    
+    .btn.primary {
+        background: #2563eb;
+        border-color: #1d4ed8;
+        color: #fff
+    }
+</style>
+
+<script>
+    const urlInput = document.getElementById("imgUrl");
+    const img = document.getElementById("imgPreview");
+    const ph = document.getElementById("imgPlaceholder");
+
+    function show(url) {
+        if (!img || !ph) return;
+        if (url) {
+            img.src = url;
+            img.onload = () => {
+                img.style.display = 'block';
+                ph.style.display = 'none';
+            };
+            img.onerror = () => {
+                img.style.display = 'none';
+                ph.style.display = 'block';
+                ph.textContent = 'Không tải được ảnh';
+            };
+        } else {
+            img.style.display = 'none';
+            ph.style.display = 'block';
+            ph.textContent = 'Chưa có ảnh';
+        }
+    }
+    if (urlInput) {
+        urlInput.addEventListener('input', e => show(e.target.value.trim()));
+        show(urlInput.value.trim());
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %} {% block title %}Đăng nhập{% endblock %} {% block content %}
+<section class="card" style="max-width:520px;margin:0 auto;padding:18px">
+    <h2 style="margin:0 0 12px">Đăng nhập</h2>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <label style="display:block;margin:10px 0 6px">Email hoặc SĐT</label>
+        <input type="text" name="email_or_mobile" value="{{ form.email_or_mobile.value|default_if_none:'' }}" class="w-full" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--ring);background:var(--card);color:var(--text)" placeholder="email@vd.com hoặc 09xxxxxxxx"
+            required>
+
+        <label style="display:block;margin:12px 0 6px">Mật khẩu</label>
+        <input type="password" name="password" class="w-full" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--ring);background:var(--card);color:var(--text)" placeholder="••••••••" required> {% if form.non_field_errors %}
+        <ul class="text-red-400" style="margin-top:8px">
+            {% for err in form.non_field_errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %} {% for field in form.visible_fields %} {% if field.errors %}
+        <div class="text-red-400" style="margin-top:6px">{{ field.errors }}</div>
+        {% endif %} {% endfor %}
+
+        <button class="btn" style="margin-top:14px;width:100%;justify-content:center;background:#2563eb;border-color:#1d4ed8;color:#fff">
+      Đăng nhập
+    </button>
+    </form>
+
+    <div class="muted" style="margin-top:12px;text-align:center">
+        Chưa có tài khoản? <a class="muted" href="{% url 'register' %}" style="color:#7cc0ff">Đăng ký</a>
+    </div>
+</section>
+{% endblock %}

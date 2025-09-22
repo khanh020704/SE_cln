@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% block title %}{% if editing %}Sửa bài{% else %}Đăng bài{% endif %} — VN News{% endblock %} {% block content %}
+<h2 style="margin:8px 0 14px;font-weight:800">{% if editing %}Sửa bài{% else %}Đăng bài mới{% endif %}</h2>
+
+<form method="post" novalidate>
+    {% csrf_token %} {% if messages %}
+    <div class="muted" style="margin-bottom:8px">
+        {% for m in messages %}
+        <div>{{ m }}</div>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card" style="padding:14px">
+        {{ form.non_field_errors }}
+
+        <div style="display:grid;gap:12px">
+            <div>
+                <label>Tiêu đề</label> {{ form.title }} {{ form.title.errors }}
+            </div>
+
+            <div>
+                <label>Tóm tắt</label> {{ form.excerpt }} {{ form.excerpt.errors }}
+            </div>
+
+            <div>
+                <label>Nội dung (HTML cho phép chèn ảnh)</label> {{ form.content_html }} {{ form.content_html.errors }}
+            </div>
+
+            <div>
+                <label>URL ảnh chính</label> {{ form.main_image_url }} {{ form.main_image_url.errors }}
+            </div>
+
+            <div>
+                <label>Chú thích ảnh</label> {{ form.main_image_caption }} {{ form.main_image_caption.errors }}
+            </div>
+
+            <div>
+                <label>Chuyên mục</label> {{ form.categories }} {{ form.categories.errors }}
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+                <div>
+                    <label>Hiển thị từ</label> {{ form.published_at }} {{ form.published_at.errors }}
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    {{ form.is_visible }} <label>Hiển thị công khai</label> {{ form.is_visible.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div class="hr"></div>
+        <div style="display:flex;gap:10px">
+            <button class="btn" type="submit">{% if editing %}Lưu thay đổi{% else %}Đăng bài{% endif %}</button>
+            <a class="btn" href="{% url 'my_articles' %}">Bài của tôi</a>
+        </div>
+    </div>
+</form>
+{% endblock %}

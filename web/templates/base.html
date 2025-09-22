@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{% block title %} News{% endblock %}</title>
+    <style>
+         :root {
+            --bg: #ffffff;
+            --card: #6f7278;
+            --muted: #8a94a7;
+            --text: white;
+            --brand: #3ea6ff;
+            --ring: #263247;
+            --border: #1f2530;
+            --accent: #6f7278;
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", "Noto Sans", Arial
+        }
+        
+        a {
+            color: var(--text);
+            text-decoration: none
+        }
+        
+        a:hover {
+            color: #7a4868;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px
+        }
+        
+        .header {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px
+        }
+        
+        .brand {
+            font-weight: 800;
+            font-size: 22px;
+            color: #4b9ee7
+        }
+        
+        .search {
+            flex: 1;
+            display: flex;
+            justify-content: center
+        }
+        
+        .search form {
+            width: 100%;
+            max-width: 680px;
+            display: flex;
+            gap: 8px
+        }
+        
+        .search input,
+        .search select {
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--ring);
+            background: white;
+            color: black;
+            outline: 0;
+            font-size: 15px
+        }
+        
+        .search input {
+            flex: 1
+        }
+        
+        .search select {
+            min-width: 130px
+        }
+        
+        .nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 6px
+        }
+        
+        .chip {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #3d9be0;
+            /* màu mặc định */
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        /* Hover */
+        
+        .chip:hover {
+            background: #7a4868;
+            /* xanh đậm hơn khi hover */
+            transform: translateY(-2px);
+        }
+        
+        .muted {
+            color: var(--muted)
+        }
+        
+        .grid {
+            display: grid;
+            gap: 16px
+        }
+        
+        .grid.cards {
+            grid-template-columns: repeat(1, minmax(0, 1fr))
+        }
+        
+        @media(min-width:640px) {
+            .grid.cards {
+                grid-template-columns: repeat(2, minmax(0, 1fr))
+            }
+        }
+        
+        @media(min-width:960px) {
+            .grid.cards {
+                grid-template-columns: repeat(3, minmax(0, 1fr))
+            }
+        }
+        
+        .card {
+            background: #1f1c2f;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden
+        }
+        
+        .card .cover {
+            display: block;
+            background: #0b0f15
+        }
+        
+        .card .cover img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block
+        }
+        
+        .card .body {
+            padding: 14px
+        }
+        
+        .title {
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 1.35;
+            margin: 4px 0 6px
+        }
+        
+        .excerpt {
+            font-size: 14px;
+            color: var(--muted)
+        }
+        
+        .meta {
+            font-size: 12px;
+            color: var(--muted)
+        }
+        
+        .btn {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #3d9be0;
+            color: var(--text);
+            cursor: pointer
+        }
+        
+        .btn:hover {
+            background: #7a4868;
+            /* xanh đậm hơn khi hover */
+            transform: translateY(-2px);
+        }
+        
+        .hr {
+            height: 1px;
+            background: var(--border);
+            margin: 18px 0
+        }
+        /* =========================
+       ẢNH TRONG BÀI — ANTI-DISTORT
+       ========================= */
+        
+        .prose figure {
+            margin: 14px 0
+        }
+        
+        .prose figcaption {
+            margin-top: 6px;
+            font-size: 0.92rem;
+            color: var(--muted)
+        }
+        
+        .prose figure img,
+        .prose img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            max-height: 72vh;
+            object-fit: contain;
+            background: #0b0f15;
+        }
+        
+        .prose img[width],
+        .prose img[height] {
+            width: auto !important;
+            height: auto !important
+        }
+        
+        #article>img {
+            width: 100%;
+            max-height: 440px;
+            object-fit: cover;
+            display: block;
+            border-radius: 12px;
+            background: #0b0f15;
+        }
+        
+        .rel-grid .card .cover img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            border-radius: 12px;
+            background: #0b0f15;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <header class="container header">
+        <a class="brand" href="{% url 'home' %}">News</a>
+
+        <div class="search">
+            <form method="get" action="{% url 'home' %}">
+                <input name="q" value="{{ request.GET.q|default:'' }}" placeholder="Tìm tin tức mới ..." />
+            </form>
+        </div>
+
+        <div>
+            {% if request.user.is_authenticated %}
+            <a class="btn" href="{% url 'submit_article' %}">Đăng bài</a>
+            <a class="chip" href="{% url 'my_articles' %}" style="margin-left:6px">Cá nhân</a>
+            <a class="chip" href="{% url 'logout' %}" style="margin-left:6px">Đăng xuất</a> {% else %}
+            <a class="btn" href="{% url 'login' %}">Đăng nhập</a>
+            <a class="chip" href="{% url 'register' %}" style="margin-left:6px">Đăng ký</a> {% endif %}
+        </div>
+    </header>
+
+
+    <nav class="container nav">
+        {% if categories %} {% for c in categories %}
+        <a class="chip" href="{% url 'category' slug=c.slug %}">{{ c.name }}</a> {% endfor %} {% endif %}
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="news-footer" style="margin:40px 0 24px;color:var(--muted);text-align:center">
+        <div class="footer-content">
+            <h2 class="logo">News</h2>
+            <p class="tagline">Cập nhật tin tức mới nhất mỗi ngày</p>
+            <div class="footer-links" style="margin-bottom:12px;">
+                <a href="#">Trang chủ</a>
+                <a href="#">Thời sự</a>
+                <a href="#">Kinh tế</a>
+                <a href="#">Thể thao</a>
+                <a href="#">Giáo dục</a>
+                <a href="#">Liên hệ</a>
+            </div>
+            <div style="font-size:14px;">
+                © 2025 News. All rights reserved.
+            </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const routes = {
+                "Trang chủ": "{% url 'home' %}",
+                "Thời sự": "{% url 'category' slug='thoi-su' %}",
+                "Kinh tế": "{% url 'category' slug='kinh-te' %}",
+                "Thể thao": "{% url 'category' slug='the-thao' %}",
+                "Giáo dục": "{% url 'category' slug='giao-duc' %}",
+                "Liên hệ": "https://example.com/contact"
+
+            };
+
+            document.querySelectorAll(".news-footer .footer-links a").forEach(link => {
+                link.addEventListener("click", function(e) {
+                    e.preventDefault(); // chặn nhảy #
+                    const text = this.innerText.trim();
+                    if (routes[text]) {
+                        window.location.href = routes[text];
+                    }
+                });
+            });
+        });
+    </script>
+
+
+    <style>
+        .news-footer {
+            background: #1e1e2f;
+            color: #ddd;
+            padding: 40px 20px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin-top: 60px;
+            border-top: 3px solid #ff3d00;
+        }
+        
+        .news-footer .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff3d00;
+            margin-bottom: 8px;
+        }
+        
+        .news-footer .tagline {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        
+        .news-footer .footer-links {
+            margin: 16px 0;
+        }
+        
+        .news-footer .footer-links a {
+            color: #ddd;
+            margin: 0 12px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        
+        .news-footer .footer-links a:hover {
+            color: #ff3d00;
+        }
+        
+        .news-footer .copyright {
+            font-size: 13px;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
+
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

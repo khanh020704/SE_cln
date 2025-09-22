@@ -1,0 +1,9 @@
+{% extends "base.html" %} {% block title %}Xoá bài — News{% endblock %} {% block content %}
+<h2 style="margin:8px 0 14px;font-weight:800">Xoá bài</h2>
+<p>Bạn có chắc muốn xoá: <strong>{{ article.title }}</strong>?</p>
+<form method="post">
+    {% csrf_token %}
+    <button class="btn" type="submit">Xoá</button>
+    <a class="btn" href="{% url 'my_articles' %}">Huỷ</a>
+</form>
+{% endblock %}

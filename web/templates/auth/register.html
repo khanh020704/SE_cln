@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Đăng ký{% endblock %}
+{% block content %}
+<section class="card" style="max-width:520px;margin:0 auto;padding:18px">
+  <h2 style="margin:0 0 12px">Đăng ký</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <label style="display:block;margin:10px 0 6px">Họ và tên</label>
+    <input type="text" name="full_name" value="{{ form.full_name.value|default_if_none:'' }}"
+           class="w-full"
+           style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--ring);background:var(--card);color:var(--text)"
+           placeholder="Nguyễn Văn A" required>
+
+    <label style="display:block;margin:12px 0 6px">Email hoặc SĐT</label>
+    <input type="text" name="email_or_mobile" value="{{ form.email_or_mobile.value|default_if_none:'' }}"
+           class="w-full"
+           style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--ring);background:var(--card);color:var(--text)"
+           placeholder="email@vd.com hoặc 09xxxxxxxx" required>
+
+    <label style="display:block;margin:12px 0 6px">Mật khẩu</label>
+    <input type="password" name="password1"
+           class="w-full"
+           style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--ring);background:var(--card);color:var(--text)"
+           placeholder="••••••••" required>
+
+    <label style="display:block;margin:12px 0 6px">Xác nhận mật khẩu</label>
+    <input type="password" name="password2"
+           class="w-full"
+           style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--ring);background:var(--card);color:var(--text)"
+           placeholder="••••••••" required>
+
+    {% if form.errors %}
+      <div class="text-red-400" style="margin-top:8px">{{ form.errors }}</div>
+    {% endif %}
+
+    <button class="btn" style="margin-top:14px;width:100%;justify-content:center;background:#16a34a;border-color:#15803d;color:#fff">
+      Tạo tài khoản
+    </button>
+  </form>
+
+  <div class="muted" style="margin-top:12px;text-align:center">
+    Đã có tài khoản? <a class="muted" href="{% url 'login' %}" style="color:#7cc0ff">Đăng nhập</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,388 @@
+{% extends "base.html" %} {% load static %} {% load extras %} {% block title %}{{ a.title }} News{% endblock %} {% block extra_head %}
+<meta property="og:title" content="{{ a.title }}"> {% if a.main_image_url %}
+<meta property="og:image" content="{{ a.main_image_url }}"> {% endif %}
+
+<style>
+    /* ===== Comment UI ===== */
+    
+    .cmt-wrap {
+        margin-top: 18px
+    }
+    
+    .cmt-card {
+        background: #154c8f;
+        border: 1px solid #1f2a35;
+        border-radius: 12px;
+        padding: 16px
+    }
+    
+    .cmt-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px
+    }
+    
+    @media(max-width: 860px) {
+        .cmt-grid {
+            grid-template-columns: 1fr
+        }
+    }
+    
+    .cmt-label {
+        display: block;
+        font-size: 14px;
+        color: #9fb0c0;
+        margin: 0 0 6px 2px
+    }
+    
+    .cmt-input,
+    .cmt-textarea {
+        width: 100%;
+        background: #0f1620;
+        color: #dbe6ef;
+        border: 1px solid #273646;
+        border-radius: 10px;
+        padding: 10px 12px;
+        outline: none;
+        transition: border .15s, box-shadow .15s;
+    }
+    
+    .cmt-textarea {
+        min-height: 160px;
+        resize: vertical
+    }
+    
+    .cmt-input:focus,
+    .cmt-textarea:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, .15)
+    }
+    
+    .cmt-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px
+    }
+    
+    .cmt-btn {
+        background: #3b82f6;
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 18px;
+        cursor: pointer;
+        transition: opacity .15s, transform .02s;
+    }
+    
+    .cmt-btn:disabled {
+        opacity: .5;
+        cursor: not-allowed
+    }
+    
+    .cmt-btn:active {
+        transform: translateY(1px)
+    }
+    
+    .cmt-err {
+        color: #f08080;
+        font-size: 13px
+    }
+    
+    .cmt-ok {
+        color: #66d585;
+        font-size: 13px
+    }
+    
+    .cmt-list {
+        margin-top: 18px
+    }
+    
+    .cmt-item {
+        padding: 14px 0;
+        border-bottom: 1px solid #1f2a35
+    }
+    
+    .cmt-head {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: #9fb0c0;
+        font-size: 13px;
+        margin-bottom: 6px
+    }
+    
+    .cmt-author {
+        color: #dbe6ef;
+        font-weight: 600
+    }
+    
+    .cmt-dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #395064;
+        display: inline-block
+    }
+    
+    .cmt-body {
+        white-space: pre-wrap;
+        line-height: 1.55
+    }
+</style>
+{% endblock %} {% block content %}
+<article id="article" class="card" style="overflow:visible" data-slug="{{ a.slug }}">
+    {% if a.main_image_url %}
+    <img src="{{ a.main_image_url }}" alt="{{ a.title|default_if_none:" " }}" style="width:100%;max-height:440px;object-fit:cover;display:block"> {% if a.main_image_caption %}
+    <div class="caption">{{ a.main_image_caption }}</div>
+    {% endif %} {% endif %}
+
+    <div class="body">
+        <h1 style="margin:4px 0 6px 0">{{ a.title }}</h1>
+
+        <p class="meta">
+            {% if a.published_at %}{{ a.published_at|date:"H:i d/m/Y" }}{% endif %} {% if a.categories.all %} • {% for c in a.categories.all %}
+            <a class="muted" href="{% url 'category' c.slug %}">{{ c.name }}</a>{% if not forloop.last %}, {% endif %} {% endfor %} {% endif %}
+        </p>
+
+        {% if a.excerpt %}
+        <p class="excerpt" style="margin:6px 0 12px 0">{{ a.excerpt }}</p>
+        {% endif %} {% if a.content_html %}
+        <div class="prose">{{ a.content_html|safe }}</div>
+        {% else %}
+        <p class="muted">Bài này chưa có nội dung HTML sạch để hiển thị.</p>
+        {% endif %} {% if a.source_url %}
+        <p class="muted" style="margin-top:10px">
+            Nguồn:
+            <a class="muted" href="{{ a.source_url }}" target="_blank" rel="noreferrer nofollow">
+            {{ a.source_url }}
+          </a>
+        </p>
+        {% endif %}
+
+        <div class="hr"></div>
+
+        <!-- REACTIONS -->
+        <div id="reactions" class="flex gap-4 items-center my-4">
+            <button type="button" data-react="like" class="btn">
+          Thích <span id="count-like">{{ counts.like|default:0 }}</span>
+        </button>
+            <button type="button" data-react="sad" class="btn">
+          Không thích <span id="count-sad">{{ counts.sad|default:0 }}</span>
+        </button>
+
+            </button>
+        </div>
+
+        <div class="hr"></div>
+
+        <!-- COMMENTS (guest form) -->
+        <section class="cmt-wrap">
+            <h3 class="text-lg font-semibold mb-3">Bình luận</h3>
+
+            <div class="cmt-card">
+                <form id="commentForm" method="post" action="{% url 'api_guest_comment' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="article_id" value="{{ a.id }}">
+
+                    <div class="cmt-grid">
+                        <div>
+                            <label class="cmt-label">Họ và tên <span class="text-red-400">*</span></label>
+                            <input id="full_name" name="full_name" type="text" class="cmt-input" placeholder="" required minlength="2" maxlength="120">
+                        </div>
+                        <div>
+                            <label class="cmt-label">Email <span class="text-red-400"></span></label>
+                            <input id="email_or_mobile" name="email" type="text" class="cmt-input" placeholder="abc@gmail.com " required>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px">
+                        <label class="cmt-label">Nội dung <span class="text-red-400">*</span></label>
+                        <textarea id="content" name="content" class="cmt-textarea" placeholder="Viết bình luận..." required minlength="3"></textarea>
+                    </div>
+
+                    <div class="cmt-actions">
+                        <button id="btnSubmit" type="submit" class="cmt-btn" disabled>Gửi</button>
+                        <span id="cmtError" class="cmt-err"></span>
+                        <span id="cmtOk" class="cmt-ok"></span>
+                    </div>
+                </form>
+            </div>
+
+            <div id="commentList" class="cmt-list">
+                {% for c in comments %}
+                <div class="cmt-item">
+                    <div class="cmt-head">
+                        <span class="cmt-author">{{ c.author|default:"Ẩn danh" }}</span>
+                        <span class="cmt-dot"></span>
+                        <span>{{ c.created_at|date:"H:i d/m/Y" }}</span>
+                    </div>
+                    <div class="cmt-body">{{ c.content }}</div>
+                </div>
+                {% empty %}
+                <p class="text-gray-400">Chưa có bình luận.</p>
+                {% endfor %}
+            </div>
+        </section>
+        <!-- /COMMENTS -->
+    </div>
+</article>
+
+{% if related %}
+<h3 style="margin:18px 0 10px 0">Bài viết liên quan</h3>
+<section class="rel-grid">
+    {% for r in related %}
+    <article class="card">
+        <a class="cover" href="{% url 'article_detail' r.slug %}">
+            {% if r.main_image_url %}
+              <img src="{{ r.main_image_url }}" alt="{{ r.title }}" loading="lazy" referrerpolicy="no-referrer"
+     style="width:100%;height:220px;object-fit:cover;border-radius:12px;background:#0b0f15"
+     onerror="this.style.display='none'">
+            {% else %}
+              <img src="https://picsum.photos/800/400?random={{ r.id }}" alt="{{ r.title }}" loading="lazy" referrerpolicy="no-referrer"
+     style="width:100%;height:220px;object-fit:cover;border-radius:12px;background:#0b0f15"
+     onerror="this.style.display='none'">
+            {% endif %}
+          </a>
+        <div class="body">
+            <a class="title" href="{% url 'article_detail' r.slug %}">{{ r.title }}</a> {% if r.published_at %}
+            <div class="meta">{{ r.published_at|date:"H:i d/m/Y" }}</div>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endif %} {% endblock %} {% block extra_scripts %}
+<script>
+    function getCookie(name) {
+        const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return m ? m.pop() : '';
+    }
+
+    function updateCounts(counts) {
+        for (const k in counts) {
+            const el = document.getElementById('count-' + k);
+            if (el) el.textContent = counts[k];
+        }
+    }
+    // Reactions
+    (function() {
+        const articleEl = document.getElementById('article');
+        if (!articleEl) return;
+        const slug = articleEl.dataset.slug;
+        const csrftoken = getCookie('csrftoken');
+        document.querySelectorAll('#reactions [data-react]').forEach(btn => {
+            btn.addEventListener('click', async() => {
+                const value = btn.dataset.react;
+                try {
+                    const res = await fetch("{% url 'api_react' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: new URLSearchParams({
+                            slug,
+                            value
+                        }).toString()
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (data && data.ok && data.counts) updateCounts(data.counts);
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+        });
+    })();
+
+    // Guest comment validate + submit
+    (function() {
+        const form = document.getElementById('commentForm');
+        if (!form) return;
+        const nameEl = document.getElementById('full_name');
+        const emailEl = document.getElementById('email_or_mobile');
+        const contentEl = document.getElementById('content');
+        const btn = document.getElementById('btnSubmit');
+        const errEl = document.getElementById('cmtError');
+        const okEl = document.getElementById('cmtOk');
+
+        const phoneRe = /^(?:\+?84|0)\d{9,10}$/;
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+
+        function valid() {
+            const fn = (nameEl.value || '').trim().length >= 2;
+            const idf = (emailEl.value || '').trim();
+            const idOK = emailRe.test(idf) || phoneRe.test(idf);
+            const ct = (contentEl.value || '').trim().length >= 3;
+            errEl.textContent = idf && !idOK ? 'Email/SĐT không hợp lệ' : '';
+            return fn && idOK && ct;
+        }
+
+        function tick() {
+            btn.disabled = !valid();
+            okEl.textContent = '';
+        }
+        ['input', 'change', 'keyup'].forEach(ev => {
+            nameEl.addEventListener(ev, tick);
+            emailEl.addEventListener(ev, tick);
+            contentEl.addEventListener(ev, tick);
+        });
+        tick();
+
+        form.addEventListener('submit', async(e) => {
+            e.preventDefault();
+            if (!valid()) {
+                tick();
+                return;
+            }
+            btn.disabled = true;
+            errEl.textContent = '';
+            okEl.textContent = '';
+            try {
+                const fd = new FormData(form);
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: fd
+                });
+                const data = await res.json();
+                if (!data.ok) throw new Error((data.errors && JSON.stringify(data.errors)) || 'Lỗi gửi bình luận');
+
+                // prepend bình luận
+                const list = document.getElementById('commentList');
+                const item = document.createElement('div');
+                item.className = 'cmt-item';
+                item.innerHTML = `<div class="cmt-head">
+                            <span class="cmt-author">${data.comment.author}</span>
+                            <span class="cmt-dot"></span>
+                            <span>${data.comment.created_at}</span>
+                          </div>
+                          <div class="cmt-body"></div>`;
+                item.querySelector('.cmt-body').textContent = data.comment.content;
+                list.prepend(item);
+
+                form.reset();
+                tick();
+                okEl.textContent = 'Đã gửi bình luận.';
+            } catch (err) {
+                errEl.textContent = err.message || 'Có lỗi xảy ra';
+            } finally {
+                btn.disabled = !valid();
+            }
+        });
+    })();
+
+    // Ẩn ảnh hỏng
+    document.querySelectorAll('.prose img').forEach(img => {
+        img.addEventListener('error', () => {
+            const fig = img.closest('figure');
+            if (fig) fig.remove();
+            else img.remove();
+        });
+    });
+</script>
+{% endblock %}
