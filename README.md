@@ -1,27 +1,5 @@
 # News 
 
-## Demo giao diện
-
-### 1. Trang chủ
-
-![Home](docs/images/home.png)
-
-### 2. Đăng nhập
-
-![Login](docs/images/login.png) 
-
-### 3. Đăng ký
-
-![Register](docs/images/register.png)
-
-### 4. Đăng bài
-
-![Submit](docs/images/submit.png)
-
-### 5. Bài của tôi
-
-![My Articles](docs/images/user.png)
-
 ## 1. Giới thiệu
 
 News là một dự án **thu thập và hiển thị tin tức từ nhiều nguồn báo chí**, phát triển bằng **Django All-in-One** (Django + Celery + Redis + PostgreSQL/SQLite).
